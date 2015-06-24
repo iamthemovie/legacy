@@ -1,7 +1,7 @@
 Legacy
 ======
 
-Legacy is a utility for uploading snapshots and incremental backups to S3.
+Legacy is a utility for uploading Cassandra snapshots and incremental backups to S3.
 
 Light-weight, simple tool that can be run on individual nodes.
 
