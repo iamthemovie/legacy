@@ -26,6 +26,7 @@ import (
 type LegacyArguments struct {
 	AwsSecret       string
 	AwsAccessKey    string
+	AwsRegion       string
 	S3Bucket        string
 	S3BasePath      string
 	NewSnapshot     bool
@@ -195,7 +196,7 @@ func (la *LegacyArguments) GetLegacy() (*Legacy, error) {
 		time.Now().AddDate(0, 0, 1))
 
 	// Check the bucket exists.
-	bucket := s3.New(auth, aws.EUWest).Bucket(la.S3Bucket)
+	bucket := s3.New(auth, GetAwsRegion(la.AwsRegion)).Bucket(la.S3Bucket)
 	_, err := bucket.List("/", "/", "", 1)
 	if err != nil {
 		return nil, err
@@ -273,10 +274,11 @@ func (cb *Legacy) GetTableReferences() []CassandraTableMeta {
 	return activeTableList
 }
 
-func getLegacyArguments() (*LegacyArguments, error) {
+func GetLegacyArguments() (*LegacyArguments, error) {
 	args := &LegacyArguments{}
 	flag.StringVar(&args.AwsSecret, "aws-secret", "", "AWS Secret")
 	flag.StringVar(&args.AwsAccessKey, "aws-access-key", "", "AWS Secret Key")
+	flag.StringVar(&args.AwsRegion, "aws-region", "eu-central-1", "AWS Region - Default: eu-central-1. See: http://http://docs.aws.amazon.com/general/latest/gr/rande.html#s3_region")
 	flag.StringVar(&args.S3Bucket, "s3-bucket", "", "The name of the bucket for the backup destination.")
 	flag.StringVar(&args.S3BasePath, "s3-base-path", "", "The path inside the bucket where the backups will be placed.")
 	flag.StringVar(&args.Keyspace, "keyspace", "", "The Cassandra Keyspace to backup.")
@@ -298,4 +300,31 @@ func getLegacyArguments() (*LegacyArguments, error) {
 	}
 
 	return args, nil
+}
+
+func GetAwsRegion(region string) aws.Region {
+	switch region {
+	default:
+		return aws.EUWest
+	case "us-gov-west-1":
+		return aws.USGovWest
+	case "us-east-1":
+		return aws.USEast
+	case "us-west-1":
+		return aws.USWest
+	case "us-west-2":
+		return aws.USWest2
+	case "eu-west-1":
+		return aws.EUWest
+	case "eu-central-1":
+		return aws.EUCentral
+	case "ap-southeast-1":
+		return aws.APSoutheast
+	case "ap-southeast-2":
+		return aws.APSoutheast2
+	case "ap-northeast-1":
+		return aws.APNortheast
+	case "cn-north-1":
+		return aws.CNNorth
+	}
 }
