@@ -69,6 +69,15 @@ func CreateNewSnapshot(snapshotTag string) (string, error) {
 	return snapshotName, nil
 }
 
+func ClearSnapshot(snapshotName string) error {
+	result := SystemCall("nodetool", "clearsnapshot", snapshotName)
+	if result.StatusCode != 0 {
+		return errors.New("Clearing snapshot failed")
+	}
+
+	return nil
+}
+
 func prettyPrint(in ...interface{}) {
 	pretty.Println(in)
 }
