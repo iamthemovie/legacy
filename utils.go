@@ -21,7 +21,7 @@ type SystemCallResult struct {
 	Error      error
 }
 
-func systemCall(name string, args ...string) SystemCallResult {
+func SystemCall(name string, args ...string) SystemCallResult {
 	command := exec.Command(name, args...)
 	result := SystemCallResult{}
 	var output bytes.Buffer
@@ -53,13 +53,13 @@ func systemCall(name string, args ...string) SystemCallResult {
 	return result
 }
 
-func createNewSnapshot(snapshotTag string) (string, error) {
+func CreateNewSnapshot(snapshotTag string) (string, error) {
 	if len(snapshotTag) == 0 {
 		snapshotTag = strconv.Itoa(int(time.Now().Unix()))
 	}
 
 	tag := "--tag legacy-" + snapshotTag
-	result := systemCall("nodetool", "snapshot", tag)
+	result := SystemCall("nodetool", "snapshot", tag)
 	if result.StatusCode != 0 {
 		return "", errors.New("Snapshotting failed")
 	}

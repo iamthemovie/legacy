@@ -57,7 +57,7 @@ func main() {
 		}
 	}()
 
-	args, err := getLegacyArguments()
+	args, err := GetLegacyArguments()
 
 	if err != nil {
 		fmt.Println(err.Error())
@@ -106,7 +106,7 @@ type LegacyTableManifest struct {
 func (l *Legacy) Run() {
 	// Every time we run, we create snapshot. This is used to check for active
 	// tables / new tables. It is deleted after we've finished :)
-	snapshotName, _ := createNewSnapshot(strconv.Itoa(int(time.Now().Unix())))
+	snapshotName, _ := CreateNewSnapshot(strconv.Itoa(int(time.Now().Unix())))
 	l.SeedSnaphshot = snapshotName
 
 	tables := l.GetTableReferences()
@@ -182,8 +182,6 @@ func (l *Legacy) RunTableBackup(table *CassandraTableMeta) {
 
 	backupInstance.Run()
 }
-
-//func (t *CassandraTableMeta) UploadSnapshotFiles()
 
 func (la *LegacyArguments) GetLegacy() (*Legacy, error) {
 	// Create a "TEST" snapshot in order to work out which tables are active
