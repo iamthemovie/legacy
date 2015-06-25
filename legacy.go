@@ -276,7 +276,7 @@ func GetLegacyArguments() (*LegacyArguments, error) {
 	args := &LegacyArguments{}
 	flag.StringVar(&args.AwsSecret, "aws-secret", "", "AWS Secret")
 	flag.StringVar(&args.AwsAccessKey, "aws-access-key", "", "AWS Secret Key")
-	flag.StringVar(&args.AwsRegion, "aws-region", "eu-central-1", "AWS Region - Default: eu-central-1. See: http://http://docs.aws.amazon.com/general/latest/gr/rande.html#s3_region")
+	flag.StringVar(&args.AwsRegion, "aws-region", "eu-west-1", "AWS Region - Default: eu-west-1. See: http://docs.aws.amazon.com/general/latest/gr/rande.html#s3_region")
 	flag.StringVar(&args.S3Bucket, "s3-bucket", "", "The name of the bucket for the backup destination.")
 	flag.StringVar(&args.S3BasePath, "s3-base-path", "", "The path inside the bucket where the backups will be placed.")
 	flag.StringVar(&args.Keyspace, "keyspace", "", "The Cassandra Keyspace to backup.")
@@ -302,8 +302,6 @@ func GetLegacyArguments() (*LegacyArguments, error) {
 
 func GetAwsRegion(region string) aws.Region {
 	switch region {
-	default:
-		return aws.EUWest
 	case "us-gov-west-1":
 		return aws.USGovWest
 	case "us-east-1":
@@ -324,5 +322,7 @@ func GetAwsRegion(region string) aws.Region {
 		return aws.APNortheast
 	case "cn-north-1":
 		return aws.CNNorth
+	default:
+		return aws.EUWest
 	}
 }
