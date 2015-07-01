@@ -39,6 +39,8 @@ legacy \
 - If a snapshot has been previously been uploaded to S3 it will upload the SSTables flushed into the incremental backups folder.
 (it will delete the SSTable once successfully uploaded to S3)
 
+- AWS credentials can also be provided in the environment via AWS\_ACCESS\_KEY\_ID and AWS\_SECRET\_ACCESS\_KEY
+
 Internals
 ---------
 

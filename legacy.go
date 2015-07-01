@@ -274,8 +274,8 @@ func (cb *Legacy) GetTableReferences() []CassandraTableMeta {
 
 func GetLegacyArguments() (*LegacyArguments, error) {
 	args := &LegacyArguments{}
-	flag.StringVar(&args.AwsSecret, "aws-secret", "", "AWS Secret")
-	flag.StringVar(&args.AwsAccessKey, "aws-access-key", "", "AWS Secret Key")
+	flag.StringVar(&args.AwsSecret, "aws-secret", os.Getenv("AWS_SECRET_ACCESS_KEY"), "AWS Secret - Default: AWS_SECRET_ACCESS_KEY environment variable")
+	flag.StringVar(&args.AwsAccessKey, "aws-access-key", os.Getenv("AWS_ACCESS_KEY_ID"), "AWS Secret Key - Default: AWS_ACCESS_KEY_ID environment variable")
 	flag.StringVar(&args.AwsRegion, "aws-region", "eu-west-1", "AWS Region - Default: eu-west-1. See: http://docs.aws.amazon.com/general/latest/gr/rande.html#s3_region")
 	flag.StringVar(&args.S3Bucket, "s3-bucket", "", "The name of the bucket for the backup destination.")
 	flag.StringVar(&args.S3BasePath, "s3-base-path", "", "The path inside the bucket where the backups will be placed.")
