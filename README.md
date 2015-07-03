@@ -9,7 +9,7 @@ It supports backing up snapshots and incremental backups, as well as tidying up 
 
 **Notes:**
 
-Used in production [Cassandra 2.1+] in it's current state - stable enough and provides the necessary functionality to keep a clean consistent backup of a multi-node, multi-terrabyte cluster.
+Used in production [Cassandra 2.1+] in its current state - stable enough and provides the necessary functionality to keep a clean consistent backup of a multi-node, multi-terrabyte cluster.
 
 Assuming the nodetool snapshot has --tags and the directory structure of the data/snapshots/backups directory is the same on 2.0 it should work.
 
