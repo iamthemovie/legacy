@@ -32,7 +32,25 @@ type LegacyArguments struct {
 	NewSnapshot     bool
 	Keyspace        string
 	DataDirectories string
+	LogDirectory    string
 	Help            bool
+}
+
+type Legacy struct {
+	MachineName     string
+	DataDirectories []string
+	LogDirectory    string
+	LogFile         *os.File
+	SeedSnaphshot   string
+	S3Bucket        *s3.Bucket
+	S3StreamBucket  *s3gof3r.Bucket
+	S3BasePath      string
+}
+
+type LegacyTableManifest struct {
+	SnapshotName    string
+	DateCreated     string
+	DateLastUpdated string
 }
 
 var memprofile = flag.String("memprofile", "", "write memory profile to this file")
@@ -75,6 +93,7 @@ func main() {
 		return
 	}
 
+	legacy.SetupLogging()
 	legacy.Run()
 
 	if *memprofile != "" {
@@ -86,21 +105,8 @@ func main() {
 		f.Close()
 		return
 	}
-}
 
-type Legacy struct {
-	MachineName     string
-	DataDirectories []string
-	SeedSnaphshot   string
-	S3Bucket        *s3.Bucket
-	S3StreamBucket  *s3gof3r.Bucket
-	S3BasePath      string
-}
-
-type LegacyTableManifest struct {
-	SnapshotName    string
-	DateCreated     string
-	DateLastUpdated string
+	legacy.ShutdownLogging()
 }
 
 func (l *Legacy) Run() {
@@ -115,6 +121,39 @@ func (l *Legacy) Run() {
 	}
 
 	// @todo Clear specific snapshot
+}
+
+func (l *Legacy) SetupLogging() {
+	if len(l.LogDirectory) == 0 {
+		log.Println("Looks like no log directory is set. Defaulting to stdout.")
+		return
+	}
+
+	filename := "legacy-" + time.Now().Format("20060201") + ".log"
+	logPath := path.Join(l.LogDirectory, filename)
+	fh, err := os.OpenFile(logPath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	if err == nil {
+		l.LogFile = fh
+		log.SetOutput(fh)
+		log.Println("Using file logging...")
+		return
+	}
+
+	// @todo create log folder? recursive or let the user create their folders?
+	log.Println("An error occurred attempting to use the log file:" + err.Error())
+	log.Println("Please make sure the log directory exists with the" +
+		" correct permissions.")
+}
+
+// ShutdownLogging closes the file handle.
+// @todo In future we could do with having this clean up older log files,
+//       maybe even in compress them.
+func (l *Legacy) ShutdownLogging() {
+	if l.LogFile == nil {
+		return
+	}
+
+	l.LogFile.Close()
 }
 
 func (l *Legacy) GetManifest(tablePath string) (*LegacyTableManifest, error) {
@@ -140,9 +179,14 @@ func (l *Legacy) SaveManifest(tablePath string, manifest LegacyTableManifest) {
 func (l *Legacy) RunTableBackup(table *CassandraTableMeta) {
 	tableManifest, err := l.GetManifest(table.GetManifestPath())
 
-	snapshotFileSystemPath := path.Join(table.GetDataPath(), "snapshots", l.SeedSnaphshot)
-	backupFileSystemPath := path.Join(table.GetDataPath(), "backups")
-	s3UploadPath := path.Join(l.S3BasePath, l.MachineName, table.GetManifestPath(), "snapshots")
+	snapshotFileSystemPath :=
+		path.Join(table.GetDataPath(), "snapshots", l.SeedSnaphshot)
+
+	backupFileSystemPath :=
+		path.Join(table.GetDataPath(), "backups")
+
+	s3UploadPath :=
+		path.Join(l.S3BasePath, l.MachineName, table.GetManifestPath(), "snapshots")
 
 	if err != nil {
 		log.Println("Manifest does not exist. Computing initial snapshot upload size...")
@@ -169,7 +213,8 @@ func (l *Legacy) RunTableBackup(table *CassandraTableMeta) {
 	// Does the backup direoctory exist?
 	if _, err := os.Stat(backupFileSystemPath); os.IsNotExist(err) {
 		log.Println(backupFileSystemPath)
-		log.Println("No backups directory present. Have incremental backups been enabled? If so, Casandra may not have flushed the SSTables yet.")
+		log.Println("No backups directory present. Have incremental backups been " +
+			" enabled? If so, Cassandra may not have flushed the SSTables yet.")
 		return
 	}
 
@@ -208,7 +253,13 @@ func (la *LegacyArguments) GetLegacy() (*Legacy, error) {
 
 	streamBucket := streamAccess.Bucket(la.S3Bucket)
 
-	legacy := &Legacy{DataDirectories: make([]string, 0), S3Bucket: bucket, S3StreamBucket: streamBucket}
+	legacy := &Legacy{
+		DataDirectories: make([]string, 0),
+		S3Bucket:        bucket,
+		S3StreamBucket:  streamBucket,
+		LogDirectory:    la.LogDirectory,
+	}
+
 	legacy.MachineName, _ = os.Hostname()
 	for _, element := range strings.Split(la.DataDirectories, ",") {
 		element = strings.TrimSpace(element)
@@ -283,6 +334,7 @@ func GetLegacyArguments() (*LegacyArguments, error) {
 	flag.StringVar(&args.DataDirectories, "directories", "/var/lib/cassandra/data", "A set of data directories that contain the keyspace / tables. For multiple, comma separate: /data1,/data2")
 	flag.BoolVar(&args.Help, "help", false, "Print this info.")
 	flag.BoolVar(&args.NewSnapshot, "new-snapshot", false, "Force a new snapshot.")
+	flag.StringVar(&args.LogDirectory, "logs", "/var/log/legacy", "The directory to store the mercury logs.")
 	flag.Parse()
 
 	if args.Help {
