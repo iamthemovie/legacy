@@ -78,6 +78,47 @@ func ClearSnapshot(snapshotName string) error {
 	return nil
 }
 
+// GetInterfaceAddresses ...
+// We're gettiing the interfaces...
+func GetInterfaceAddresses() ([]string, error) {
+	ifaces, err := net.Interfaces()
+	if err != nil {
+		log.Println("GetInterfacesAddresses: Failed to get interfaces: " + err.Error())
+		return nil, err
+	}
+
+	ips := []string{}
+	for _, v := range ifaces {
+		if v.Flags&net.FlagUp == 0 || v.Flags&net.FlagLoopback != 0 {
+			continue
+		}
+
+		addresses, err := v.Addrs()
+		if err != nil {
+			log.Println("GetInterfaceAddresses: Failed to Address for interface. ")
+			continue
+		}
+
+		for _, address := range addresses {
+			var ip net.IP
+			switch addr := address.(type) {
+			case *net.IPNet:
+				ip = addr.IP
+			case *net.IPAddr:
+				ip = addr.IP
+			}
+
+			if ip == nil || ip.IsLoopback() {
+				continue
+			}
+
+			ips = append(ips, ip.String())
+		}
+	}
+
+	return ips, nil
+}
+
 func prettyPrint(in ...interface{}) {
 	pretty.Println(in)
 }
