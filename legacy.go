@@ -281,9 +281,10 @@ func (la *LegacyArguments) GetLegacy() (*Legacy, error) {
 	return legacy, nil
 }
 
-func (cb *Legacy) GetTableReferences() []CassandraTableMeta {
+// GetTableReferences ...
+func (l *Legacy) GetTableReferences() []CassandraTableMeta {
 	retrieveKeyspaces := func(files []os.FileInfo, err error) []string {
-		names := make([]string, 0)
+		names := []string{}
 		for _, element := range files {
 			if !element.IsDir() {
 				continue
@@ -296,13 +297,13 @@ func (cb *Legacy) GetTableReferences() []CassandraTableMeta {
 	}
 
 	retrieveTableFolders := func(dataDir, keyspaceName string) []CassandraTableMeta {
-		tableMetas := make([]CassandraTableMeta, 0)
+		tableMetas := []CassandraTableMeta{}
 		keyspaceFolder := path.Join(dataDir, keyspaceName)
 		tableDirList, _ := ioutil.ReadDir(keyspaceFolder)
 		for _, tableDir := range tableDirList {
 			tableDirName := tableDir.Name()
 
-			p := (path.Join(keyspaceFolder, tableDirName, "snapshots", cb.SeedSnaphshot))
+			p := (path.Join(keyspaceFolder, tableDirName, "snapshots", l.SeedSnaphshot))
 			log.Println(p)
 			if _, err := os.Stat(p); os.IsNotExist(err) {
 				continue
@@ -319,7 +320,7 @@ func (cb *Legacy) GetTableReferences() []CassandraTableMeta {
 	}
 
 	activeTableList := []CassandraTableMeta{}
-	for _, element := range cb.DataDirectories {
+	for _, element := range l.DataDirectories {
 		// Walk through this directory and get the Keyspace
 		keyspacesForDirectory := retrieveKeyspaces(ioutil.ReadDir(element))
 		for _, keyspaceName := range keyspacesForDirectory {
