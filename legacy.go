@@ -36,6 +36,7 @@ type LegacyArguments struct {
 	Help            bool
 }
 
+// Legacy ...
 type Legacy struct {
 	MachineName     string
 	DataDirectories []string
@@ -47,6 +48,7 @@ type Legacy struct {
 	S3BasePath      string
 }
 
+// LegacyTableManifest ...
 type LegacyTableManifest struct {
 	SnapshotName    string
 	DateCreated     string
@@ -109,6 +111,7 @@ func main() {
 	legacy.ShutdownLogging()
 }
 
+// Run ...
 func (l *Legacy) Run() {
 	// Every time we run, we create snapshot. This is used to check for active
 	// tables / new tables. It is deleted after we've finished :)
@@ -123,6 +126,7 @@ func (l *Legacy) Run() {
 	// @todo Clear specific snapshot
 }
 
+// SetupLogging ...
 func (l *Legacy) SetupLogging() {
 	if len(l.LogDirectory) == 0 {
 		log.Println("Looks like no log directory is set. Defaulting to stdout.")
@@ -156,6 +160,7 @@ func (l *Legacy) ShutdownLogging() {
 	l.LogFile.Close()
 }
 
+// GetManifest ...
 func (l *Legacy) GetManifest(tablePath string) (*LegacyTableManifest, error) {
 	p := path.Join(l.S3BasePath, l.MachineName, ".legacy", tablePath, "manifest.json")
 	log.Println("Getting manifest for: " + p)
@@ -169,6 +174,7 @@ func (l *Legacy) GetManifest(tablePath string) (*LegacyTableManifest, error) {
 	return &manifest, nil
 }
 
+// SaveManifest ...
 func (l *Legacy) SaveManifest(tablePath string, manifest LegacyTableManifest) {
 	p := path.Join(l.S3BasePath, l.MachineName, ".legacy", tablePath, "manifest.json")
 	log.Println("Saving manifest for: " + p)
@@ -176,6 +182,7 @@ func (l *Legacy) SaveManifest(tablePath string, manifest LegacyTableManifest) {
 	l.S3Bucket.Put(p, output, "application/json", s3.BucketOwnerFull, s3.Options{})
 }
 
+// RunTableBackup ...
 func (l *Legacy) RunTableBackup(table *CassandraTableMeta) {
 	tableManifest, err := l.GetManifest(table.GetManifestPath())
 
@@ -228,6 +235,7 @@ func (l *Legacy) RunTableBackup(table *CassandraTableMeta) {
 	backupInstance.Run()
 }
 
+// GetLegacy ...
 func (la *LegacyArguments) GetLegacy() (*Legacy, error) {
 	// Create a "TEST" snapshot in order to work out which tables are active
 	// Get a list of Keyspaces and Table Names (plus directories)
@@ -352,6 +360,7 @@ func GetLegacyArguments() (*LegacyArguments, error) {
 	return args, nil
 }
 
+// GetAwsRegion ...
 func GetAwsRegion(region string) aws.Region {
 	switch region {
 	case "us-gov-west-1":
