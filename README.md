@@ -7,6 +7,8 @@ Light-weight, simple tool that can be run on individual nodes.
 
 It supports backing up snapshots and incremental backups, as well as tidying up incremental backups as it goes along.
 
+Make sure to get the latest version from the [Releases Section](https://github.com/iamthemovie/legacy/releases) rather than master (which should be treated as unstable just in-case).
+
 **Notes:**
 
 Used in production [Cassandra 2.1+] in its current state - stable enough and provides the necessary functionality to keep a clean consistent backup of a multi-node, multi-terrabyte cluster.
