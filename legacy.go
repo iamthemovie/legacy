@@ -332,6 +332,16 @@ func (l *Legacy) GetTableReferences() []CassandraTableMeta {
 	return activeTableList
 }
 
+// RunTokenBackup ...
+func (l *Legacy) RunTokenBackup() {
+	// Question: Should we version tokens? For now no.
+	// Get interfaces of this machine and retrieve a list of the rings tokens
+	// for this node, once we've got them we'll push them into a file and
+	// up to S3...
+
+}
+
+// GetLegacyArguments ...
 func GetLegacyArguments() (*LegacyArguments, error) {
 	args := &LegacyArguments{}
 	flag.StringVar(&args.AwsSecret, "aws-secret", "", "AWS Secret")
