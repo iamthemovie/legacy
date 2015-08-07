@@ -45,6 +45,7 @@ Full Usage
 ----------
 ```
 Usage of ./legacy:
+Usage of ./legacy:
   -aws-access-key string
         AWS Secret Key
   -aws-region string
@@ -54,11 +55,9 @@ Usage of ./legacy:
   -directories string
         A set of data directories that contain the keyspace / tables. For multiple, comma separate: /data1,/data2 (default "/var/lib/cassandra/data")
   -exclude-keyspaces string
-        A comma seperated list of keypaces you wish to exlude from the backup.
+        A comma seperated list of keypaces you wish to exclude from the backup: "system,system_traces"
   -help
         Print this info.
-  -keyspace string
-        The Cassandra Keyspace to backup.
   -logs string
         The directory to store the mercury logs. (default "/var/log/legacy")
   -memprofile string
@@ -69,6 +68,7 @@ Usage of ./legacy:
         The path inside the bucket where the backups will be placed.
   -s3-bucket string
         The name of the bucket for the backup destination.
+
 ```
 
 
