@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"net"
 	"os/exec"
 	"strconv"
 	"strings"
@@ -78,12 +79,38 @@ func ClearSnapshot(snapshotName string) error {
 	return nil
 }
 
+// GetNodeTokens ...
+func GetNodeTokens() []string {
+	addresses, err := GetInterfaceAddresses()
+	if err != nil {
+		return nil
+	}
+
+	tokens := []string{}
+	result := SystemCall("nodetool", "ring")
+	lines := strings.Split(string(result.Output), "\n")
+	for _, v := range lines {
+		for _, address := range addresses {
+			if !strings.HasPrefix(v, address) {
+				continue
+			}
+
+			// Assume the token is always first if reversed.
+			values := strings.Split(strings.TrimSpace(v), " ")
+			tokens = append(tokens, values[len(values)-1])
+		}
+	}
+
+	return tokens
+}
+
 // GetInterfaceAddresses ...
 // We're gettiing the interfaces...
 func GetInterfaceAddresses() ([]string, error) {
 	ifaces, err := net.Interfaces()
 	if err != nil {
-		log.Println("GetInterfacesAddresses: Failed to get interfaces: " + err.Error())
+		log.Println("GetInterfacesAddresses: Failed to get interfaces: " +
+			err.Error())
 		return nil, err
 	}
 

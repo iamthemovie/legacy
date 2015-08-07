@@ -3,6 +3,7 @@ package main
 /*  Legacy - Simple Cassandra Backup Utility
  */
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"flag"
@@ -115,6 +116,8 @@ func main() {
 func (l *Legacy) Run() {
 	// Every time we run, we create snapshot. This is used to check for active
 	// tables / new tables. It is deleted after we've finished :)
+	l.RunTokenBackup()
+
 	snapshotName, _ := CreateNewSnapshot(strconv.Itoa(int(time.Now().Unix())))
 	l.SeedSnaphshot = snapshotName
 
@@ -338,7 +341,19 @@ func (l *Legacy) RunTokenBackup() {
 	// Get interfaces of this machine and retrieve a list of the rings tokens
 	// for this node, once we've got them we'll push them into a file and
 	// up to S3...
+	log.Println("Running token backup for node: " + l.MachineName)
+	tokens := GetNodeTokens()
+	if tokens == nil {
+		log.Println("Token Backup: Unable to backup node tokens.")
+		return
+	}
 
+	var buffer bytes.Buffer
+	p := path.Join(l.S3BasePath, l.MachineName, "NODE-TOKENS")
+	buffer.WriteString(l.MachineName)
+	buffer.WriteString("\n\n")
+	buffer.WriteString(strings.Join(tokens, ","))
+	l.S3Bucket.Put(p, buffer.Bytes(), "text/plain", s3.BucketOwnerFull, s3.Options{})
 }
 
 // GetLegacyArguments ...
