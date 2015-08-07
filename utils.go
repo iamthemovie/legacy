@@ -66,7 +66,11 @@ func CreateNewSnapshot(snapshotTag string) (string, error) {
 	}
 
 	lines := strings.Split(strings.ToLower(string(result.Output)), "\n")
-	snapshotName := strings.TrimSpace(strings.Replace(lines[1], "snapshot directory:", "", 1))
+	snapshotName := strings.TrimSpace(
+		strings.Replace(lines[1],
+			"snapshot directory:",
+			"",
+			1))
 	return snapshotName, nil
 }
 

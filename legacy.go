@@ -126,7 +126,8 @@ func (l *Legacy) Run() {
 		l.RunTableBackup(&table)
 	}
 
-	// @todo Clear specific snapshot
+	log.Println("Table backup complete. Clearing snapshot: " + snapshotName)
+	ClearSnapshot(snapshotName)
 }
 
 // SetupLogging ...
