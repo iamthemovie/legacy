@@ -41,6 +41,37 @@ legacy \
 - If a snapshot has been previously been uploaded to S3 it will upload the SSTables flushed into the incremental backups folder.
 (it will delete the SSTable once successfully uploaded to S3)
 
+Full Usage
+----------
+```
+Usage of ./legacy:
+  -aws-access-key string
+        AWS Secret Key
+  -aws-region string
+        AWS Region - Default: eu-west-1. See: http://docs.aws.amazon.com/general/latest/gr/rande.html#s3_region (default "eu-west-1")
+  -aws-secret string
+        AWS Secret
+  -directories string
+        A set of data directories that contain the keyspace / tables. For multiple, comma separate: /data1,/data2 (default "/var/lib/cassandra/data")
+  -exclude-keyspaces string
+        A comma seperated list of keypaces you wish to exlude from the backup.
+  -help
+        Print this info.
+  -keyspace string
+        The Cassandra Keyspace to backup.
+  -logs string
+        The directory to store the mercury logs. (default "/var/log/legacy")
+  -memprofile string
+        write memory profile to this file
+  -new-snapshot
+        Force a new snapshot.
+  -s3-base-path string
+        The path inside the bucket where the backups will be placed.
+  -s3-bucket string
+        The name of the bucket for the backup destination.
+```
+
+
 Internals
 ---------
 
@@ -65,7 +96,7 @@ Current tasks:
 
 - ~~Selecting specific keyspaces (rather than all of them)~~
 
-- Request a brand new snapshot (via a cli option)
+- ~~Request a brand new snapshot (via a cli option)~~
 
 - Reduce Memory foot-print
 
