@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"errors"
-	"fmt"
 	"log"
 	"net"
 	"os/exec"
@@ -37,7 +36,6 @@ func SystemCall(name string, args ...string) SystemCallResult {
 			if status, ok := exitErr.Sys().(syscall.WaitStatus); ok {
 				result.StatusCode = status.ExitStatus()
 				result.Output = output.Bytes()
-				fmt.Printf("Exit Status: %d", result.StatusCode)
 				return result
 			}
 		} else {
@@ -47,8 +45,6 @@ func SystemCall(name string, args ...string) SystemCallResult {
 			return result
 		}
 	}
-
-	log.Printf("%+v", string(output.Bytes()))
 	result.Output = output.Bytes()
 	result.StatusCode = 0
 	return result
