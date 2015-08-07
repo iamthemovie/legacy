@@ -31,7 +31,6 @@ type LegacyArguments struct {
 	S3Bucket         string
 	S3BasePath       string
 	NewSnapshot      bool
-	Keyspace         string
 	DataDirectories  string
 	LogDirectory     string
 	ExcludeKeyspaces string
@@ -376,7 +375,6 @@ func GetLegacyArguments() (*LegacyArguments, error) {
 	flag.StringVar(&args.AwsRegion, "aws-region", "eu-west-1", "AWS Region - Default: eu-west-1. See: http://docs.aws.amazon.com/general/latest/gr/rande.html#s3_region")
 	flag.StringVar(&args.S3Bucket, "s3-bucket", "", "The name of the bucket for the backup destination.")
 	flag.StringVar(&args.S3BasePath, "s3-base-path", "", "The path inside the bucket where the backups will be placed.")
-	flag.StringVar(&args.Keyspace, "keyspace", "", "The Cassandra Keyspace to backup.")
 	flag.StringVar(&args.DataDirectories, "directories", "/var/lib/cassandra/data", "A set of data directories that contain the keyspace / tables. For multiple, comma separate: /data1,/data2")
 	flag.BoolVar(&args.Help, "help", false, "Print this info.")
 	flag.BoolVar(&args.NewSnapshot, "new-snapshot", false, "Force a new snapshot.")
