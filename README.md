@@ -63,7 +63,7 @@ To do
 
 Current tasks:
 
-- Selecting specific keyspaces (rather than all of them)
+- ~~Selecting specific keyspaces (rather than all of them)~~
 
 - Request a brand new snapshot (via a cli option)
 
