@@ -49,6 +49,7 @@ type Legacy struct {
 	S3Bucket         *s3.Bucket
 	S3StreamBucket   *s3gof3r.Bucket
 	S3BasePath       string
+	NewSnapshot      bool
 }
 
 // LegacyTableManifest ...
@@ -119,6 +120,10 @@ func (l *Legacy) Run() {
 	// Every time we run, we create snapshot. This is used to check for active
 	// tables / new tables. It is deleted after we've finished :)
 	l.RunTokenBackup()
+
+	if l.NewSnapshot {
+		log.Println("[New Snapshot Requested]")
+	}
 
 	snapshotName, _ := CreateNewSnapshot(strconv.Itoa(int(time.Now().Unix())))
 	l.SeedSnaphshot = snapshotName
@@ -191,6 +196,10 @@ func (l *Legacy) SaveManifest(tablePath string, manifest LegacyTableManifest) {
 // RunTableBackup ...
 func (l *Legacy) RunTableBackup(table *CassandraTableMeta) {
 	tableManifest, err := l.GetManifest(table.GetManifestPath())
+	if err != nil {
+		log.Println("Manifest does not exist for Keyspace:" + table.KeyspaceName +
+			" Table: " + table.Folder)
+	}
 
 	snapshotFileSystemPath :=
 		path.Join(table.GetDataPath(), "snapshots", l.SeedSnaphshot)
@@ -201,8 +210,8 @@ func (l *Legacy) RunTableBackup(table *CassandraTableMeta) {
 	s3UploadPath :=
 		path.Join(l.S3BasePath, l.MachineName, table.GetManifestPath(), "snapshots")
 
-	if err != nil {
-		log.Println("Manifest does not exist. Computing initial snapshot upload size...")
+	if err != nil || l.NewSnapshot {
+		log.Println("Computing initial snapshot upload size...")
 		tableManifest = &LegacyTableManifest{
 			SnapshotName:    l.SeedSnaphshot,
 			DateCreated:     time.Now().Format(time.RFC3339),
@@ -272,6 +281,7 @@ func (la *LegacyArguments) GetLegacy() (*Legacy, error) {
 		S3Bucket:        bucket,
 		S3StreamBucket:  streamBucket,
 		LogDirectory:    la.LogDirectory,
+		NewSnapshot:     la.NewSnapshot,
 	}
 
 	legacy.MachineName, _ = os.Hostname()
