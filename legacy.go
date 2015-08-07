@@ -25,16 +25,17 @@ import (
 
 // LegacyArguments ...
 type LegacyArguments struct {
-	AwsSecret       string
-	AwsAccessKey    string
-	AwsRegion       string
-	S3Bucket        string
-	S3BasePath      string
-	NewSnapshot     bool
-	Keyspace        string
-	DataDirectories string
-	LogDirectory    string
-	Help            bool
+	AwsSecret        string
+	AwsAccessKey     string
+	AwsRegion        string
+	S3Bucket         string
+	S3BasePath       string
+	NewSnapshot      bool
+	Keyspace         string
+	DataDirectories  string
+	LogDirectory     string
+	ExcludeKeyspaces string
+	Help             bool
 }
 
 // Legacy ...
@@ -370,6 +371,7 @@ func GetLegacyArguments() (*LegacyArguments, error) {
 	flag.BoolVar(&args.Help, "help", false, "Print this info.")
 	flag.BoolVar(&args.NewSnapshot, "new-snapshot", false, "Force a new snapshot.")
 	flag.StringVar(&args.LogDirectory, "logs", "/var/log/legacy", "The directory to store the mercury logs.")
+	flag.StringVar(&args.ExcludeKeyspaces, "exclude-keypspaces", "", "A comma seperated list of keypaces you wish to exlude from the backup.")
 	flag.Parse()
 
 	if args.Help {
