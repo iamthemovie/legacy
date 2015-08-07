@@ -40,14 +40,15 @@ type LegacyArguments struct {
 
 // Legacy ...
 type Legacy struct {
-	MachineName     string
-	DataDirectories []string
-	LogDirectory    string
-	LogFile         *os.File
-	SeedSnaphshot   string
-	S3Bucket        *s3.Bucket
-	S3StreamBucket  *s3gof3r.Bucket
-	S3BasePath      string
+	MachineName      string
+	DataDirectories  []string
+	ExcludeKeyspaces []string
+	LogDirectory     string
+	LogFile          *os.File
+	SeedSnaphshot    string
+	S3Bucket         *s3.Bucket
+	S3StreamBucket   *s3gof3r.Bucket
+	S3BasePath       string
 }
 
 // LegacyTableManifest ...
@@ -274,14 +275,8 @@ func (la *LegacyArguments) GetLegacy() (*Legacy, error) {
 	}
 
 	legacy.MachineName, _ = os.Hostname()
-	for _, element := range strings.Split(la.DataDirectories, ",") {
-		element = strings.TrimSpace(element)
-		if len(element) == 0 {
-			continue
-		}
-
-		legacy.DataDirectories = append(legacy.DataDirectories, element)
-	}
+	legacy.DataDirectories = SplitAndTrim(la.DataDirectories, ",")
+	legacy.ExcludeKeyspaces = SplitAndTrim(la.ExcludeKeyspaces, ",")
 
 	return legacy, nil
 }
@@ -329,6 +324,11 @@ func (l *Legacy) GetTableReferences() []CassandraTableMeta {
 		// Walk through this directory and get the Keyspace
 		keyspacesForDirectory := retrieveKeyspaces(ioutil.ReadDir(element))
 		for _, keyspaceName := range keyspacesForDirectory {
+			if SliceContainsString(keyspaceName, l.ExcludeKeyspaces) {
+				log.Println("Excluding Keyspace: " + keyspaceName)
+				continue
+			}
+
 			tables := retrieveTableFolders(element, keyspaceName)
 			activeTableList = append(activeTableList, tables...)
 		}
@@ -371,7 +371,7 @@ func GetLegacyArguments() (*LegacyArguments, error) {
 	flag.BoolVar(&args.Help, "help", false, "Print this info.")
 	flag.BoolVar(&args.NewSnapshot, "new-snapshot", false, "Force a new snapshot.")
 	flag.StringVar(&args.LogDirectory, "logs", "/var/log/legacy", "The directory to store the mercury logs.")
-	flag.StringVar(&args.ExcludeKeyspaces, "exclude-keypspaces", "", "A comma seperated list of keypaces you wish to exlude from the backup.")
+	flag.StringVar(&args.ExcludeKeyspaces, "exclude-keyspaces", "", "A comma seperated list of keypaces you wish to exlude from the backup.")
 	flag.Parse()
 
 	if args.Help {

@@ -146,6 +146,33 @@ func GetInterfaceAddresses() ([]string, error) {
 	return ips, nil
 }
 
+// prettyPrint ...
 func prettyPrint(in ...interface{}) {
 	pretty.Println(in)
+}
+
+// SliceContainsString ...
+func SliceContainsString(str string, slice []string) bool {
+	for _, value := range slice {
+		if value == str {
+			return true
+		}
+	}
+
+	return false
+}
+
+// SplitAndTrim ...
+func SplitAndTrim(str string, sep string) []string {
+	result := []string{}
+	for _, element := range strings.Split(str, sep) {
+		element = strings.TrimSpace(element)
+		if len(element) == 0 {
+			continue
+		}
+
+		result = append(result, element)
+	}
+
+	return result
 }
