@@ -45,7 +45,6 @@ Full Usage
 ----------
 ```
 Usage of ./legacy:
-Usage of ./legacy:
   -aws-access-key string
         AWS Secret Key
   -aws-region string
@@ -71,6 +70,7 @@ Usage of ./legacy:
 
 ```
 
+- AWS credentials can also be provided in the environment via AWS\_ACCESS\_KEY\_ID and AWS\_SECRET\_ACCESS\_KEY
 
 Internals
 ---------
